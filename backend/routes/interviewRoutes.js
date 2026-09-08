@@ -2,11 +2,11 @@ const express = require("express");
 
 const {
     submitInterview
-} = require("../../controllers/interviewController");
+} = require("../controllers/interviewController");
 
 const {
     authMiddleware
-} = require("../../middleware/authMiddleware");
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
 

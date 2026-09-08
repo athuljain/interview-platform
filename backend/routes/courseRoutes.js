@@ -3,12 +3,12 @@ const express = require("express");
 const {
     createCourse,
     getCourses
-} = require("../../controllers/courseController");
+} = require("../controllers/courseController");
 
 const {
     authMiddleware,
     authorize
-} = require("../../middleware/authMiddleware");
+} = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
