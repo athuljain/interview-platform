@@ -1,4 +1,3 @@
-
 import {
   BrowserRouter,
   Routes,
@@ -17,6 +16,7 @@ import Register from "./pages/Register";
 
 // Dashboards
 import AdminDashboard from "./pages/AdminDashboard";
+import FacultyPage from "./pages/FacultyPage";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import InternDashboard from "./pages/InternDashboard";
 
@@ -82,6 +82,15 @@ function App() {
           element={
             <ProtectedRoute roles={["admin"]}>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/faculty"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <FacultyPage />
             </ProtectedRoute>
           }
         />
@@ -159,7 +168,3 @@ export default function AppWithAuth() {
     </AuthProvider>
   );
 }
-
-
-
-

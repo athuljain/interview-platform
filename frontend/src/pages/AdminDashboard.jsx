@@ -1,15 +1,23 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+
 function AdminDashboard() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
   const [interns, setInterns] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [facultyCount, setFacultyCount] = useState(0);
+  const [interviewCount, setInterviewCount] = useState(0);
+
   const [courseForm, setCourseForm] = useState({
     name: "",
     description: "",
     technologies: "",
   });
+
   // Get pending interns
   const getPendingInterns = async () => {
     try {
@@ -19,6 +27,7 @@ function AdminDashboard() {
       console.log(error);
     }
   };
+
   // Get courses
   const getCourses = async () => {
     try {
@@ -28,10 +37,34 @@ function AdminDashboard() {
       console.log(error);
     }
   };
+
+  // Get faculty count
+  const getFacultyCount = async () => {
+    try {
+      const response = await api.get("/admin/faculty");
+      setFacultyCount(response.data.length);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Get interview count (falls back to 0 if endpoint doesn't support this yet)
+  const getInterviewCount = async () => {
+    try {
+      const response = await api.get("/interviews");
+      setInterviewCount(Array.isArray(response.data) ? response.data.length : 0);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     getPendingInterns();
     getCourses();
+    getFacultyCount();
+    getInterviewCount();
   }, []);
+
   // Approve intern
   const approveIntern = async (id) => {
     try {
@@ -42,6 +75,7 @@ function AdminDashboard() {
       alert(error.response?.data?.message || "Approval failed");
     }
   };
+
   // Add course
   const addCourse = async (e) => {
     e.preventDefault();
@@ -60,51 +94,58 @@ function AdminDashboard() {
       alert(error.response?.data?.message || "Course creation failed");
     }
   };
+
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        {" "}
         <div>
-          {" "}
-          <h1>AI Interview Platform</h1> <p>Admin Dashboard</p>{" "}
-        </div>{" "}
+          <h1>AI Interview Platform</h1>
+          <p>Admin Dashboard</p>
+        </div>
         <div>
-          {" "}
-          <span> Welcome, {user?.name} </span>{" "}
+          <span>Welcome, {user?.name}</span>
           <button style={styles.logout} onClick={logout}>
-            {" "}
-            Logout{" "}
-          </button>{" "}
-        </div>{" "}
-      </header>{" "}
+            Logout
+          </button>
+        </div>
+      </header>
+
       <main style={styles.main}>
-        {" "}
-        {/* Statistics */}{" "}
+        {/* Statistics */}
         <div style={styles.cards}>
-          {" "}
           <div style={styles.card}>
-            {" "}
-            <h3>Pending Interns</h3> <h1>{interns.length}</h1>{" "}
-          </div>{" "}
+            <h3>Pending Interns</h3>
+            <h1>{interns.length}</h1>
+          </div>
           <div style={styles.card}>
-            {" "}
-            <h3>Total Courses</h3> <h1>{courses.length}</h1>{" "}
-          </div>{" "}
+            <h3>Total Courses</h3>
+            <h1>{courses.length}</h1>
+          </div>
+          <div
+            style={{ ...styles.card, ...styles.clickableCard }}
+            onClick={() => navigate("/admin/faculty")}
+          >
+            <h3>Faculty</h3>
+            <h1>{facultyCount}</h1>
+            <small>Click to manage &rarr;</small>
+          </div>
           <div style={styles.card}>
-            {" "}
-            <h3>Faculty</h3> <h1>0</h1>{" "}
-          </div>{" "}
-          <div style={styles.card}>
-            {" "}
-            <h3>Interviews</h3> <h1>0</h1>{" "}
-          </div>{" "}
-        </div>{" "}
-        {/* Add Course */}{" "}
+            <h3>Interviews</h3>
+            <h1>{interviewCount}</h1>
+          </div>
+        </div>
+
+        {/* Quick navigation */}
+        <div style={styles.navRow}>
+          <button style={styles.navBtn} onClick={() => navigate("/admin/faculty")}>
+            Manage Faculty
+          </button>
+        </div>
+
+        {/* Add Course */}
         <section style={styles.section}>
-          {" "}
-          <h2>Add Course</h2>{" "}
+          <h2>Add Course</h2>
           <form onSubmit={addCourse} style={styles.form}>
-            {" "}
             <input
               placeholder="Course Name"
               value={courseForm.name}
@@ -112,66 +153,62 @@ function AdminDashboard() {
                 setCourseForm({ ...courseForm, name: e.target.value })
               }
               required
-            />{" "}
+            />
             <input
               placeholder="Description"
               value={courseForm.description}
               onChange={(e) =>
                 setCourseForm({ ...courseForm, description: e.target.value })
               }
-            />{" "}
+            />
             <input
               placeholder="Technologies: React, Node, MongoDB"
               value={courseForm.technologies}
               onChange={(e) =>
                 setCourseForm({ ...courseForm, technologies: e.target.value })
               }
-            />{" "}
-            <button type="submit"> Add Course </button>{" "}
-          </form>{" "}
-        </section>{" "}
-        {/* Pending Interns */}{" "}
+            />
+            <button type="submit">Add Course</button>
+          </form>
+        </section>
+
+        {/* Pending Interns */}
         <section style={styles.section}>
-          {" "}
-          <h2>Pending Intern Approvals</h2>{" "}
+          <h2>Pending Intern Approvals</h2>
           {interns.length === 0 ? (
             <p>No pending interns.</p>
           ) : (
             interns.map((intern) => (
               <div key={intern._id} style={styles.listItem}>
-                {" "}
                 <div>
-                  {" "}
-                  <strong> {intern.name} </strong> <p> {intern.email} </p>{" "}
-                  <p> {intern.department} </p>{" "}
-                </div>{" "}
-                <button onClick={() => approveIntern(intern._id)}>
-                  {" "}
-                  Approve{" "}
-                </button>{" "}
+                  <strong>{intern.name}</strong>
+                  <p>{intern.email}</p>
+                  <p>{intern.department}</p>
+                </div>
+                <button onClick={() => approveIntern(intern._id)}>Approve</button>
               </div>
             ))
-          )}{" "}
-        </section>{" "}
-        {/* Courses */}{" "}
+          )}
+        </section>
+
+        {/* Courses */}
         <section style={styles.section}>
-          {" "}
-          <h2>Courses</h2>{" "}
+          <h2>Courses</h2>
           {courses.map((course) => (
             <div key={course._id} style={styles.listItem}>
-              {" "}
               <div>
-                {" "}
-                <h3> {course.name} </h3> <p> {course.description} </p>{" "}
-                <small> {course.technologies?.join(", ")} </small>{" "}
-              </div>{" "}
+                <h3>{course.name}</h3>
+                <p>{course.description}</p>
+                <small>{course.technologies?.join(", ")}</small>
+              </div>
             </div>
-          ))}{" "}
-        </section>{" "}
-      </main>{" "}
+          ))}
+        </section>
+      </main>
     </div>
   );
 }
+
 const styles = {
   container: { minHeight: "100vh", background: "#f5f7fb" },
   header: {
@@ -195,6 +232,20 @@ const styles = {
     borderRadius: "10px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.08)",
   },
+  clickableCard: {
+    cursor: "pointer",
+    border: "1px solid #e0e7ff",
+  },
+  navRow: { marginTop: "20px" },
+  navBtn: {
+    padding: "10px 20px",
+    background: "#4338ca",
+    color: "white",
+    border: "none",
+    borderRadius: "6px",
+    cursor: "pointer",
+    fontWeight: 500,
+  },
   section: {
     background: "white",
     marginTop: "30px",
@@ -210,4 +261,5 @@ const styles = {
     alignItems: "center",
   },
 };
+
 export default AdminDashboard;
