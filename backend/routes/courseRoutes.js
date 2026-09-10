@@ -2,7 +2,9 @@ const express = require("express");
 
 const {
     createCourse,
-    getCourses
+    getCourses,
+    updateCourse,
+    deleteCourse
 } = require("../controllers/courseController");
 
 const {
@@ -23,6 +25,20 @@ router.get(
     "/",
     authMiddleware,
     getCourses
+);
+
+router.put(
+    "/:id",
+    authMiddleware,
+    authorize("admin"),
+    updateCourse
+);
+
+router.delete(
+    "/:id",
+    authMiddleware,
+    authorize("admin"),
+    deleteCourse
 );
 
 module.exports = router;

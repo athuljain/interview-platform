@@ -17,6 +17,7 @@ import Register from "./pages/Register";
 // Dashboards
 import AdminDashboard from "./pages/AdminDashboard";
 import FacultyPage from "./pages/FacultyPage";
+import CoursePage from "./pages/CoursePage";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import InternDashboard from "./pages/InternDashboard";
 
@@ -91,6 +92,15 @@ function App() {
           element={
             <ProtectedRoute roles={["admin"]}>
               <FacultyPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/admin/courses"
+          element={
+            <ProtectedRoute roles={["admin"]}>
+              <CoursePage />
             </ProtectedRoute>
           }
         />

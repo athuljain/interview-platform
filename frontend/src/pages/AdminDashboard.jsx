@@ -8,15 +8,9 @@ function AdminDashboard() {
   const navigate = useNavigate();
 
   const [interns, setInterns] = useState([]);
-  const [courses, setCourses] = useState([]);
+  const [courseCount, setCourseCount] = useState(0);
   const [facultyCount, setFacultyCount] = useState(0);
   const [interviewCount, setInterviewCount] = useState(0);
-
-  const [courseForm, setCourseForm] = useState({
-    name: "",
-    description: "",
-    technologies: "",
-  });
 
   // Get pending interns
   const getPendingInterns = async () => {
@@ -28,11 +22,11 @@ function AdminDashboard() {
     }
   };
 
-  // Get courses
-  const getCourses = async () => {
+  // Get course count
+  const getCourseCount = async () => {
     try {
       const response = await api.get("/courses");
-      setCourses(response.data);
+      setCourseCount(response.data.length);
     } catch (error) {
       console.log(error);
     }
@@ -60,7 +54,7 @@ function AdminDashboard() {
 
   useEffect(() => {
     getPendingInterns();
-    getCourses();
+    getCourseCount();
     getFacultyCount();
     getInterviewCount();
   }, []);
@@ -73,25 +67,6 @@ function AdminDashboard() {
       getPendingInterns();
     } catch (error) {
       alert(error.response?.data?.message || "Approval failed");
-    }
-  };
-
-  // Add course
-  const addCourse = async (e) => {
-    e.preventDefault();
-    try {
-      await api.post("/courses", {
-        name: courseForm.name,
-        description: courseForm.description,
-        technologies: courseForm.technologies
-          .split(",")
-          .map((item) => item.trim()),
-      });
-      alert("Course added successfully");
-      setCourseForm({ name: "", description: "", technologies: "" });
-      getCourses();
-    } catch (error) {
-      alert(error.response?.data?.message || "Course creation failed");
     }
   };
 
@@ -117,9 +92,13 @@ function AdminDashboard() {
             <h3>Pending Interns</h3>
             <h1>{interns.length}</h1>
           </div>
-          <div style={styles.card}>
+          <div
+            style={{ ...styles.card, ...styles.clickableCard }}
+            onClick={() => navigate("/admin/courses")}
+          >
             <h3>Total Courses</h3>
-            <h1>{courses.length}</h1>
+            <h1>{courseCount}</h1>
+            <small>Click to manage &rarr;</small>
           </div>
           <div
             style={{ ...styles.card, ...styles.clickableCard }}
@@ -137,40 +116,13 @@ function AdminDashboard() {
 
         {/* Quick navigation */}
         <div style={styles.navRow}>
+          <button style={styles.navBtn} onClick={() => navigate("/admin/courses")}>
+            Manage Courses
+          </button>
           <button style={styles.navBtn} onClick={() => navigate("/admin/faculty")}>
             Manage Faculty
           </button>
         </div>
-
-        {/* Add Course */}
-        <section style={styles.section}>
-          <h2>Add Course</h2>
-          <form onSubmit={addCourse} style={styles.form}>
-            <input
-              placeholder="Course Name"
-              value={courseForm.name}
-              onChange={(e) =>
-                setCourseForm({ ...courseForm, name: e.target.value })
-              }
-              required
-            />
-            <input
-              placeholder="Description"
-              value={courseForm.description}
-              onChange={(e) =>
-                setCourseForm({ ...courseForm, description: e.target.value })
-              }
-            />
-            <input
-              placeholder="Technologies: React, Node, MongoDB"
-              value={courseForm.technologies}
-              onChange={(e) =>
-                setCourseForm({ ...courseForm, technologies: e.target.value })
-              }
-            />
-            <button type="submit">Add Course</button>
-          </form>
-        </section>
 
         {/* Pending Interns */}
         <section style={styles.section}>
@@ -189,20 +141,6 @@ function AdminDashboard() {
               </div>
             ))
           )}
-        </section>
-
-        {/* Courses */}
-        <section style={styles.section}>
-          <h2>Courses</h2>
-          {courses.map((course) => (
-            <div key={course._id} style={styles.listItem}>
-              <div>
-                <h3>{course.name}</h3>
-                <p>{course.description}</p>
-                <small>{course.technologies?.join(", ")}</small>
-              </div>
-            </div>
-          ))}
         </section>
       </main>
     </div>
@@ -236,7 +174,7 @@ const styles = {
     cursor: "pointer",
     border: "1px solid #e0e7ff",
   },
-  navRow: { marginTop: "20px" },
+  navRow: { marginTop: "20px", display: "flex", gap: "10px" },
   navBtn: {
     padding: "10px 20px",
     background: "#4338ca",
@@ -252,7 +190,6 @@ const styles = {
     padding: "25px",
     borderRadius: "10px",
   },
-  form: { display: "flex", gap: "10px", flexWrap: "wrap" },
   listItem: {
     borderBottom: "1px solid #ddd",
     padding: "15px 0",
