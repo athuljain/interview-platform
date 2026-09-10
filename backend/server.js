@@ -19,7 +19,10 @@ const questionRoutes =
 const interviewRoutes =
     require("./routes/interviewRoutes");
 
-const adminRoutes=require("./routes/adminRoutes")   
+const adminRoutes = require("./routes/adminRoutes");
+
+const facultyRoutes = require("./routes/facultyRoutes");
+
 const app = express();
 
 connectDB();
@@ -47,7 +50,10 @@ app.use(
     "/api/interviews",
     interviewRoutes
 );
-app.use("/api/admin",adminRoutes)
+
+app.use("/api/admin", adminRoutes);
+
+app.use("/api/faculty", facultyRoutes);
 
 app.get("/", (req, res) => {
 

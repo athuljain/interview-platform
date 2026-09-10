@@ -10,46 +10,39 @@ const questionSchema = new mongoose.Schema(
 
         level: {
             type: String,
-            enum: [
-                "beginner",
-                "intermediate",
-                "advanced"
-            ],
+            enum: ["beginner", "intermediate", "advanced"],
             required: true
         },
 
         type: {
             type: String,
-            enum: [
-                "theory",
-                "practical",
-                "optional"
-            ],
+            enum: ["mcq", "twomark", "practical"],
             required: true
         },
 
-        question: {
+        questionText: {
             type: String,
-            required: true
+            required: true,
+            trim: true
         },
 
+        // Only used when type === "mcq"
         options: [
             {
                 type: String
             }
         ],
 
-        correctAnswer: {
-            type: String
-        },
-
-        explanation: {
-            type: String
+        // For mcq: the correct option text (must match one of "options")
+        // For twomark / practical: the answer / answer snippet shown to interns
+        answer: {
+            type: String,
+            required: true
         },
 
         marks: {
             type: Number,
-            default: 1
+            required: true
         },
 
         createdBy: {

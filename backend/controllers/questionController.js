@@ -1,51 +1,53 @@
 const Question = require("../models/Question");
 
-const createQuestion = async (req, res) => {
-
-    try {
-
-        const question =
-            await Question.create({
-
-                ...req.body,
-
-                createdBy: req.user.id
-
-            });
-
-        res.status(201).json(question);
-
-    } catch (error) {
-
-        res.status(500).json({
-            message: error.message
-        });
-
-    }
-};
-
-
-const getInterviewQuestions = async (req, res) => {
+// Used by interns (and faculty, for preview) to view a level's questions
+// with answers included, grouped by type.
+const getPracticeQuestions = async (req, res) => {
 
     try {
 
         const {
             courseId,
             level
-        } = req.query;
+        } = req.params;
+
+        if (!["beginner", "intermediate", "advanced"].includes(level)) {
+
+            return res.status(400).json({
+                message: "level must be beginner, intermediate or advanced"
+            });
+
+        }
 
         const questions =
             await Question.find({
-
                 course: courseId,
-
                 level
+            }).sort({ createdAt: 1 });
 
-            }).select(
-                "-correctAnswer -explanation"
-            );
+        const grouped = {
+            mcq: [],
+            twomark: [],
+            practical: []
+        };
 
-        res.json(questions);
+        questions.forEach((q) => {
+            grouped[q.type].push(q);
+        });
+
+        res.json({
+
+            level,
+
+            totalQuestions: questions.length,
+
+            totalMarks: questions.reduce((sum, q) => sum + q.marks, 0),
+
+            mcq: grouped.mcq,
+            twomark: grouped.twomark,
+            practical: grouped.practical
+
+        });
 
     } catch (error) {
 
@@ -56,7 +58,7 @@ const getInterviewQuestions = async (req, res) => {
     }
 };
 
+
 module.exports = {
-    createQuestion,
-    getInterviewQuestions
+    getPracticeQuestions
 };

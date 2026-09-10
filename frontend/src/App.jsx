@@ -19,7 +19,9 @@ import AdminDashboard from "./pages/AdminDashboard";
 import FacultyPage from "./pages/FacultyPage";
 import CoursePage from "./pages/CoursePage";
 import FacultyDashboard from "./pages/FacultyDashboard";
+import FacultyQuestions from "./pages/FacultyQuestion";
 import InternDashboard from "./pages/InternDashboard";
+import InternPractice from "./pages/InternPractice";
 
 // Interview
 import Interview from "./pages/Interview";
@@ -117,6 +119,15 @@ function App() {
           }
         />
 
+        <Route
+          path="/faculty/questions/:courseId"
+          element={
+            <ProtectedRoute roles={["faculty"]}>
+              <FacultyQuestions />
+            </ProtectedRoute>
+          }
+        />
+
 
         {/* ================= INTERN ================= */}
 
@@ -125,6 +136,15 @@ function App() {
           element={
             <ProtectedRoute roles={["intern"]}>
               <InternDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/intern/practice"
+          element={
+            <ProtectedRoute roles={["intern"]}>
+              <InternPractice />
             </ProtectedRoute>
           }
         />

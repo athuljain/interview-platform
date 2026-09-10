@@ -1,28 +1,21 @@
 const express = require("express");
 
 const {
-    createQuestion,
-    getInterviewQuestions
+    getPracticeQuestions
 } = require("../controllers/questionController");
 
 const {
-    authMiddleware,
-    authorize
+    authMiddleware
 } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
-router.post(
-    "/",
-    authMiddleware,
-    authorize("admin", "faculty"),
-    createQuestion
-);
-
+// Any logged-in user (intern, faculty, admin) can view a level's questions.
+// Used by interns for practice - answers are included in the response.
 router.get(
-    "/interview",
+    "/:courseId/:level",
     authMiddleware,
-    getInterviewQuestions
+    getPracticeQuestions
 );
 
 module.exports = router;
